@@ -283,50 +283,53 @@
     /**
      * Multi-strike atmospheric lightning storm during station transitions
      * @param {number} durationMs - Storm duration (default 1200ms)
+     * @param {number} amount - Lightning amount scale 1 to 100 (default 50)
      */
-    startStorm(durationMs = 1200) {
+    startStorm(durationMs = 1200, amount = 50) {
       this.stopStorm();
       this.stormActive = true;
 
-      // Accelerated background canvas storm if present
+      const clampedAmount = Math.max(1, Math.min(100, Number(amount) || 50));
+      const level = clampedAmount / 100; // 0.01 to 1.0
+
+      // Accelerated background canvas storm if present, scaled by amount
       if (window.startHyperWarpStorm) {
-        window.startHyperWarpStorm(durationMs);
+        window.startHyperWarpStorm(durationMs, level);
       }
 
-      // Strike 1: Immediate massive primary fork
-      this.flash(0.9, 160);
-      this.strikeSky(
-        this.width * (0.1 + Math.random() * 0.3),
-        0,
-        this.width * (0.4 + Math.random() * 0.4),
-        this.height * (0.55 + Math.random() * 0.35),
-        { intensity: 1.2, displace: 90, branches: 3 }
-      );
+      // Initial entry flash scaled by level
+      const initialFlashIntensity = 0.2 + level * 0.95;
+      this.flash(initialFlashIntensity, 100 + Math.floor(level * 80));
 
-      // Staggered sequence of pretty atmospheric strikes
-      const scheduleStrike = (delay, x1Ratio, y1, x2Ratio, y2Ratio, intensity, branches) => {
+      // Calculate total number of atmospheric strikes across flight duration:
+      // 1-10: 1 strike, 11-25: 2 strikes, 26-45: 3-4 strikes, 46-70: 5-6 strikes, 71-100: 7-9 strikes
+      const strikeCount = Math.max(1, Math.round(1 + level * 8));
+
+      for (let i = 0; i < strikeCount; i++) {
+        const progress = i / strikeCount;
+        const delay = Math.floor(durationMs * (0.04 + progress * 0.88));
+
         const tid = setTimeout(() => {
           if (!this.stormActive) return;
-          this.flash(intensity * 0.65, 140);
-          this.strikeSky(
-            this.width * x1Ratio,
-            y1,
-            this.width * x2Ratio,
-            this.height * y2Ratio,
-            { intensity, displace: 70, branches }
-          );
+
+          const strikeIntensity = 0.4 + level * 0.95;
+          const branches = Math.max(1, Math.min(4, Math.round(1 + level * 3)));
+          const displace = 35 + level * 65;
+
+          const startX = this.width * (0.08 + Math.random() * 0.84);
+          const endX = startX + (Math.random() - 0.5) * (this.width * (0.25 + level * 0.45));
+          const endY = this.height * (0.4 + Math.random() * 0.5);
+
+          this.flash(strikeIntensity * 0.5, 90 + Math.floor(level * 60));
+          this.strikeSky(startX, 0, endX, endY, {
+            intensity: strikeIntensity,
+            displace,
+            branches,
+            decay: 0.045 - level * 0.015
+          });
         }, delay);
+
         this.stormTimeouts.push(tid);
-      };
-
-      scheduleStrike(160, 0.75, 0, 0.3, 0.65, 0.95, 2);
-      scheduleStrike(340, 0.2, 0, 0.7, 0.8, 1.1, 3);
-      scheduleStrike(580, 0.85, 0, 0.5, 0.7, 0.85, 2);
-      scheduleStrike(820, 0.4, 0, 0.85, 0.75, 1.0, 3);
-
-      if (durationMs > 1500) {
-        scheduleStrike(1150, 0.3, 0, 0.6, 0.85, 1.15, 3);
-        scheduleStrike(1500, 0.65, 0, 0.25, 0.7, 0.9, 2);
       }
 
       const endTid = setTimeout(() => {

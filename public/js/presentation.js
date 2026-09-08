@@ -1,7 +1,85 @@
 /**
  * presentation.js - Presentation Controller & HUD System for impress.js
- * Enhanced with Station 0 Gateway warp triggers, lightning storm sync, and slam wiggle impact.
+ * Enhanced with Station 0 Gateway warp triggers, adjustable station lightning, and slam wiggle impact.
  */
+
+/**
+ * =========================================================================
+ * ⚡ STATION LIGHTNING CONFIGURATION (Scale: 1 to 100)
+ * 
+ * Adjust the lightning intensity and storm volume for each station on the way in.
+ * Scale:
+ *   - 1-20:  Subdued, gentle, atmospheric electric crackles and rare bolts.
+ *   - 21-50: Moderate cyber storm with crisp branching bolts and rolling thunder.
+ *   - 51-80: Intense tempest with multiple fork strikes, heavy thunder, and bright flashes.
+ *   - 81-100: Apocalyptic electrical barrage with blinding stroboscopic return strokes.
+ * 
+ * Progression:
+ *   - First transition (into Station 1: 'title'): 75
+ *   - Second transition (into Station 2: 'origins'): 5
+ *   - Incrementing by +5 for each subsequent station: 10, 15, 20, 25, 30...
+ * 
+ * NOTE: You can edit this dictionary directly, or override individual stations
+ * in index.html via data-lightning="75" on any .step element, or dynamically
+ * at runtime via window.STATION_LIGHTNING['step-id'] = 90!
+ * =========================================================================
+ */
+const STATION_LIGHTNING = {
+  'title': 75,                // Station 01: First transition (plunge from gateway)
+  'origins': 5,               // Station 02: Reset to 5
+  'eligible-receiver': 10,    // Station 03: +5
+  'doctrine-triad': 15,       // Station 04: +5
+  'defcon-genesis': 20,       // Station 05: +5
+  'attack-defense': 25,       // Station 06: +5
+  'defcon-dynasty': 30,       // Station 07: +5
+  'three-formats': 35,        // Station 08: +5
+  'open-source-arsenal': 40,  // Station 09: +5
+  'comparison-matrix': 45,    // Station 10: +5
+  'docker-walkthrough': 50,   // Station 11: +5
+  'future-frontier': 55,      // Station 12: +5
+  'creed': 60,                // Station 13: +5
+  'overview': 65,             // Station 14: +5
+  'tekromancy-portal': 50     // Station 00: Return to gateway
+};
+
+// Expose globally for console or runtime edits
+window.STATION_LIGHTNING = STATION_LIGHTNING;
+
+/**
+ * Resolves lightning amount (1-100) for a given step element or step ID.
+ * Priority:
+ * 1. Element's `data-lightning` attribute (if present)
+ * 2. `STATION_LIGHTNING[stepId]` variable mapping
+ * 3. Default fallback (50)
+ */
+function getStationLightning(stepElOrId) {
+  let stepEl = null;
+  let stepId = null;
+
+  if (typeof stepElOrId === 'string') {
+    stepId = stepElOrId;
+    stepEl = document.getElementById(stepId);
+  } else if (stepElOrId instanceof Element) {
+    stepEl = stepElOrId;
+    stepId = stepEl.id;
+  }
+
+  // 1. Check data-lightning HTML attribute
+  if (stepEl && stepEl.hasAttribute('data-lightning')) {
+    const parsed = parseInt(stepEl.getAttribute('data-lightning'), 10);
+    if (!isNaN(parsed)) {
+      return Math.max(1, Math.min(100, parsed));
+    }
+  }
+
+  // 2. Check STATION_LIGHTNING variable configuration
+  if (stepId && window.STATION_LIGHTNING[stepId] !== undefined) {
+    return Math.max(1, Math.min(100, Number(window.STATION_LIGHTNING[stepId])));
+  }
+
+  return 50;
+}
+window.getStationLightning = getStationLightning;
 
 document.addEventListener('DOMContentLoaded', () => {
   // Initialize impress.js
@@ -57,12 +135,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Trigger Hyper-Warp Spiral from Station 0 to Station 1
   function startPresentationSequence() {
+    const amount = getStationLightning('title');
+    const level = amount / 100;
     if (window.soundEngine) {
       window.soundEngine.initContext();
       window.soundEngine.playHyperWarp();
     }
-    if (window.startHyperWarpStorm) {
-      window.startHyperWarpStorm(2500);
+    if (window.lightningGenerator) {
+      window.lightningGenerator.flash(0.2 + level * 0.9, 200);
+      window.lightningGenerator.startStorm(2500, amount);
+    } else if (window.startHyperWarpStorm) {
+      window.startHyperWarpStorm(2500, level);
     }
     api.goto('title');
   }
@@ -78,13 +161,20 @@ document.addEventListener('DOMContentLoaded', () => {
   // Handle slide leave event (Station transition begins)
   document.addEventListener('impress:stepleave', (event) => {
     previousStepId = event.target.id;
-    const isWarp = previousStepId === 'tekromancy-portal' && event.detail && event.detail.next && event.detail.next.id === 'title';
+    const nextStep = event.detail?.next;
+    const nextStepId = nextStep?.id;
+    const isWarp = previousStepId === 'tekromancy-portal' && nextStepId === 'title';
     const duration = isWarp ? 2500 : (event.detail?.transitionDuration || 1100);
 
-    // Pretty atmospheric lightning storm between stations
+    // Get the configured lightning amount for the incoming station (1-100)
+    const lightningAmount = getStationLightning(nextStep || nextStepId);
+    const level = lightningAmount / 100; // 0.01 to 1.0
+
+    // Atmospheric lightning storm between stations scaled by incoming station amount
     if (window.lightningGenerator) {
-      window.lightningGenerator.flash(0.7, 180);
-      window.lightningGenerator.startStorm(duration);
+      const flashIntensity = 0.2 + level * 0.9;
+      window.lightningGenerator.flash(flashIntensity, 120 + Math.floor(level * 80));
+      window.lightningGenerator.startStorm(duration, lightningAmount);
     }
 
     if (isWarp) {
@@ -92,12 +182,12 @@ document.addEventListener('DOMContentLoaded', () => {
         window.soundEngine.playHyperWarp();
       }
       if (window.startHyperWarpStorm) {
-        window.startHyperWarpStorm(2500);
+        window.startHyperWarpStorm(2500, level);
       }
     } else {
-      // Atmospheric rolling thunder crack during station transition
+      // Atmospheric rolling thunder crack during station transition scaled by incoming amount
       if (window.soundEngine) {
-        window.soundEngine.playThunderCrack(0.85);
+        window.soundEngine.playThunderCrack(0.2 + level * 0.85);
       }
     }
   });
@@ -107,6 +197,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const activeStep = event.target;
     const stepId = activeStep.id;
     const stepIndex = steps.indexOf(activeStep);
+    const lightningAmount = getStationLightning(activeStep);
+    const level = lightningAmount / 100;
 
     // Update Step Counter (Station 0 is 00, 1 is 01, etc.)
     if (currentStepEl) {
@@ -132,8 +224,8 @@ document.addEventListener('DOMContentLoaded', () => {
     if (stepId === 'title' && previousStepId === 'tekromancy-portal') {
       // Violent lightning strike & canvas flash
       if (window.lightningGenerator) {
-        window.lightningGenerator.flash(1.4, 250);
-        window.lightningGenerator.strikeTarget(window.innerWidth * 0.5, window.innerHeight * 0.45, { intensity: 1.5 });
+        window.lightningGenerator.flash(0.8 + level * 0.7, 250);
+        window.lightningGenerator.strikeTarget(window.innerWidth * 0.5, window.innerHeight * 0.45, { intensity: 1.1 + level * 0.5 });
       } else if (window.triggerLightningStrike) {
         window.triggerLightningStrike(1.4);
       }
@@ -163,9 +255,9 @@ document.addEventListener('DOMContentLoaded', () => {
         activeStep.classList.remove('slam-wiggle');
       }, 900);
     } else {
-      // Standard slide audio SFX & Flash
+      // Standard slide audio SFX & Arrival Flash scaled by station lightning amount
       if (window.lightningGenerator) {
-        window.lightningGenerator.flash(0.7, 160);
+        window.lightningGenerator.flash(0.2 + level * 0.75, 120 + Math.floor(level * 60));
       }
 
       if (window.soundEngine) {
@@ -182,9 +274,9 @@ document.addEventListener('DOMContentLoaded', () => {
     if (focalEl && window.lightningGenerator) {
       setTimeout(() => {
         window.lightningGenerator.encircle(focalEl, {
-          duration: 700,
-          padding: 12,
-          intensity: 1.1
+          duration: 500 + Math.floor(level * 350),
+          padding: 8 + Math.floor(level * 8),
+          intensity: 0.6 + level * 0.8
         });
       }, 60);
     }
@@ -200,19 +292,24 @@ document.addEventListener('DOMContentLoaded', () => {
     const el = event.detail?.substep || event.target;
     if (!el) return;
 
+    // Scale substep lightning by the station's configured amount
+    const activeStep = document.querySelector('.step.active');
+    const lightningAmount = getStationLightning(activeStep);
+    const level = lightningAmount / 100;
+
     // Trigger high-voltage screen flash & electric encircling arcs
     if (window.lightningGenerator) {
-      window.lightningGenerator.flash(0.45, 140);
+      window.lightningGenerator.flash(0.2 + level * 0.45, 100 + Math.floor(level * 60));
       window.lightningGenerator.encircle(el, {
-        duration: 650,
+        duration: 550 + Math.floor(level * 200),
         padding: 8,
-        intensity: 1.25
+        intensity: 0.8 + level * 0.6
       });
     }
 
     // Trigger electric zap sound effect
     if (window.soundEngine) {
-      window.soundEngine.playElectricZap(0.9);
+      window.soundEngine.playElectricZap(0.5 + level * 0.6);
     }
   });
 

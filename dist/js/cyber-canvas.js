@@ -394,18 +394,21 @@
   };
 
   let stormTimer = null;
-  window.startHyperWarpStorm = function (durationMs = 2400) {
+  window.startHyperWarpStorm = function (durationMs = 2400, intensityMult = 1.0) {
     isStormActive = true;
-    stormIntensity = 1.0;
+    stormIntensity = Math.max(0.15, Math.min(1.0, intensityMult));
 
-    // Trigger multiple lightning strikes in sequence
-    window.triggerLightningStrike(0.9);
+    // Trigger initial background strike if moderate or higher intensity
+    if (intensityMult > 0.25) {
+      window.triggerLightningStrike(Math.min(1.0, 0.7 * intensityMult));
+    }
 
+    const intervalTime = Math.max(260, Math.floor(550 / Math.max(0.2, intensityMult)));
     const strikeInterval = setInterval(() => {
       if (isStormActive) {
-        window.triggerLightningStrike(0.75 + Math.random() * 0.5);
+        window.triggerLightningStrike((0.5 + Math.random() * 0.5) * intensityMult);
       }
-    }, 420);
+    }, intervalTime);
 
     if (stormTimer) clearTimeout(stormTimer);
     stormTimer = setTimeout(() => {
