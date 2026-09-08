@@ -75,20 +75,34 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // Handle slide leave event
+  // Handle slide leave event (Station transition begins)
   document.addEventListener('impress:stepleave', (event) => {
     previousStepId = event.target.id;
-    if (previousStepId === 'tekromancy-portal' && event.detail && event.detail.next && event.detail.next.id === 'title') {
+    const isWarp = previousStepId === 'tekromancy-portal' && event.detail && event.detail.next && event.detail.next.id === 'title';
+    const duration = isWarp ? 2500 : (event.detail?.transitionDuration || 1100);
+
+    // Pretty atmospheric lightning storm between stations
+    if (window.lightningGenerator) {
+      window.lightningGenerator.flash(0.7, 180);
+      window.lightningGenerator.startStorm(duration);
+    }
+
+    if (isWarp) {
       if (window.soundEngine) {
         window.soundEngine.playHyperWarp();
       }
       if (window.startHyperWarpStorm) {
         window.startHyperWarpStorm(2500);
       }
+    } else {
+      // Atmospheric rolling thunder crack during station transition
+      if (window.soundEngine) {
+        window.soundEngine.playThunderCrack(0.85);
+      }
     }
   });
 
-  // Handle slide enter event
+  // Handle slide enter event (Station transition completes)
   document.addEventListener('impress:stepenter', (event) => {
     const activeStep = event.target;
     const stepId = activeStep.id;
@@ -117,7 +131,10 @@ document.addEventListener('DOMContentLoaded', () => {
     // SPECIAL WARP SLAM IMPACT: Arriving at #title from #tekromancy-portal
     if (stepId === 'title' && previousStepId === 'tekromancy-portal') {
       // Violent lightning strike & canvas flash
-      if (window.triggerLightningStrike) {
+      if (window.lightningGenerator) {
+        window.lightningGenerator.flash(1.4, 250);
+        window.lightningGenerator.strikeTarget(window.innerWidth * 0.5, window.innerHeight * 0.45, { intensity: 1.5 });
+      } else if (window.triggerLightningStrike) {
         window.triggerLightningStrike(1.4);
       }
 
@@ -146,7 +163,11 @@ document.addEventListener('DOMContentLoaded', () => {
         activeStep.classList.remove('slam-wiggle');
       }, 900);
     } else {
-      // Standard slide audio SFX
+      // Standard slide audio SFX & Flash
+      if (window.lightningGenerator) {
+        window.lightningGenerator.flash(0.7, 160);
+      }
+
       if (window.soundEngine) {
         if (stepId === 'eligible-receiver') {
           window.soundEngine.playAlert();
@@ -156,9 +177,42 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     }
 
+    // Encircle the primary focal element of the active station (title/badge/heading)
+    const focalEl = activeStep.querySelector('.tekro-hero-core, .cyber-badge, .station-tag, h1, h2');
+    if (focalEl && window.lightningGenerator) {
+      setTimeout(() => {
+        window.lightningGenerator.encircle(focalEl, {
+          duration: 700,
+          padding: 12,
+          intensity: 1.1
+        });
+      }, 60);
+    }
+
     // Cyber particle burst
     if (window.triggerCyberPulse) {
       window.triggerCyberPulse();
+    }
+  });
+
+  // Handle substep enter event (Individual elements added on navigation)
+  document.addEventListener('impress:substep:enter', (event) => {
+    const el = event.detail?.substep || event.target;
+    if (!el) return;
+
+    // Trigger high-voltage screen flash & electric encircling arcs
+    if (window.lightningGenerator) {
+      window.lightningGenerator.flash(0.45, 140);
+      window.lightningGenerator.encircle(el, {
+        duration: 650,
+        padding: 8,
+        intensity: 1.25
+      });
+    }
+
+    // Trigger electric zap sound effect
+    if (window.soundEngine) {
+      window.soundEngine.playElectricZap(0.9);
     }
   });
 

@@ -291,6 +291,143 @@ class SoundEngine {
       // Ignore
     }
   }
+
+  // High-voltage electric arc discharge for substep encircling
+  playElectricZap(intensity = 1.0) {
+    if (this.muted) return;
+    this.initContext();
+    if (!this.ctx) return;
+
+    try {
+      const now = this.ctx.currentTime;
+      const zapDuration = 0.12;
+
+      // Noise burst for electric crackle
+      const bufferSize = Math.floor(this.ctx.sampleRate * zapDuration);
+      const noiseBuffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
+      const data = noiseBuffer.getChannelData(0);
+      for (let i = 0; i < bufferSize; i++) {
+        data[i] = (Math.random() * 2 - 1) * Math.sin((i / bufferSize) * Math.PI);
+      }
+
+      const noiseSource = this.ctx.createBufferSource();
+      noiseSource.buffer = noiseBuffer;
+
+      const bandpass = this.ctx.createBiquadFilter();
+      bandpass.type = 'bandpass';
+      bandpass.frequency.setValueAtTime(2400, now);
+      bandpass.frequency.exponentialRampToValueAtTime(800, now + zapDuration);
+      bandpass.Q.setValueAtTime(4.0, now);
+
+      const noiseGain = this.ctx.createGain();
+      noiseGain.gain.setValueAtTime(0.18 * intensity, now);
+      noiseGain.gain.exponentialRampToValueAtTime(0.001, now + zapDuration);
+
+      noiseSource.connect(bandpass);
+      bandpass.connect(noiseGain);
+      noiseGain.connect(this.ctx.destination);
+
+      noiseSource.start(now);
+      noiseSource.stop(now + zapDuration);
+
+      // Modulated sawtooth wave for buzz / arc filament
+      const osc = this.ctx.createOscillator();
+      const oscGain = this.ctx.createGain();
+      osc.type = 'sawtooth';
+      osc.frequency.setValueAtTime(340, now);
+      osc.frequency.linearRampToValueAtTime(80, now + zapDuration);
+
+      oscGain.gain.setValueAtTime(0.08 * intensity, now);
+      oscGain.gain.exponentialRampToValueAtTime(0.001, now + zapDuration);
+
+      osc.connect(oscGain);
+      oscGain.connect(this.ctx.destination);
+
+      osc.start(now);
+      osc.stop(now + zapDuration);
+    } catch {
+      // Ignore
+    }
+  }
+
+  // Dramatic Thunder Crack & Rolling Sub-Bass Rumble for Storm Transitions
+  playThunderCrack(intensity = 1.0) {
+    if (this.muted) return;
+    this.initContext();
+    if (!this.ctx) return;
+
+    try {
+      const now = this.ctx.currentTime;
+      const duration = 1.6;
+
+      // 1. Instantaneous sonic crack (explosive impact)
+      const snapBuffer = this.ctx.createBuffer(1, Math.floor(this.ctx.sampleRate * 0.08), this.ctx.sampleRate);
+      const snapData = snapBuffer.getChannelData(0);
+      for (let i = 0; i < snapData.length; i++) {
+        snapData[i] = (Math.random() * 2 - 1) * Math.exp(-i / (snapData.length * 0.2));
+      }
+      const snapSource = this.ctx.createBufferSource();
+      snapSource.buffer = snapBuffer;
+
+      const snapFilter = this.ctx.createBiquadFilter();
+      snapFilter.type = 'highpass';
+      snapFilter.frequency.setValueAtTime(1200, now);
+
+      const snapGain = this.ctx.createGain();
+      snapGain.gain.setValueAtTime(0.3 * intensity, now);
+      snapGain.gain.exponentialRampToValueAtTime(0.001, now + 0.08);
+
+      snapSource.connect(snapFilter);
+      snapFilter.connect(snapGain);
+      snapGain.connect(this.ctx.destination);
+
+      snapSource.start(now);
+      snapSource.stop(now + 0.08);
+
+      // 2. Rolling thunder rumble (filtered low-pass noise)
+      const rumbleBuffer = this.ctx.createBuffer(1, Math.floor(this.ctx.sampleRate * duration), this.ctx.sampleRate);
+      const rumbleData = rumbleBuffer.getChannelData(0);
+      for (let i = 0; i < rumbleData.length; i++) {
+        rumbleData[i] = (Math.random() * 2 - 1) * Math.exp(-i / (this.ctx.sampleRate * 0.9));
+      }
+      const rumbleSource = this.ctx.createBufferSource();
+      rumbleSource.buffer = rumbleBuffer;
+
+      const rumbleFilter = this.ctx.createBiquadFilter();
+      rumbleFilter.type = 'lowpass';
+      rumbleFilter.frequency.setValueAtTime(180, now);
+      rumbleFilter.frequency.exponentialRampToValueAtTime(45, now + duration);
+
+      const rumbleGain = this.ctx.createGain();
+      rumbleGain.gain.setValueAtTime(0.35 * intensity, now);
+      rumbleGain.gain.exponentialRampToValueAtTime(0.001, now + duration);
+
+      rumbleSource.connect(rumbleFilter);
+      rumbleFilter.connect(rumbleGain);
+      rumbleGain.connect(this.ctx.destination);
+
+      rumbleSource.start(now);
+      rumbleSource.stop(now + duration + 0.05);
+
+      // 3. Deep sub-bass resonance tone (65Hz -> 28Hz)
+      const subOsc = this.ctx.createOscillator();
+      const subGain = this.ctx.createGain();
+      subOsc.type = 'sine';
+      subOsc.frequency.setValueAtTime(65, now);
+      subOsc.frequency.exponentialRampToValueAtTime(28, now + 0.8);
+
+      subGain.gain.setValueAtTime(0.22 * intensity, now);
+      subGain.gain.exponentialRampToValueAtTime(0.001, now + 0.85);
+
+      subOsc.connect(subGain);
+      subGain.connect(this.ctx.destination);
+
+      subOsc.start(now);
+      subOsc.stop(now + 0.9);
+    } catch {
+      // Ignore
+    }
+  }
 }
 
 window.soundEngine = new SoundEngine();
