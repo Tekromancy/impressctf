@@ -1,5 +1,6 @@
 /**
  * presentation.js - Presentation Controller & HUD System for impress.js
+ * Enhanced with Station 0 Gateway warp triggers, lightning storm sync, and slam wiggle impact.
  */
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -27,16 +28,23 @@ document.addEventListener('DOMContentLoaded', () => {
   const helpModal = document.getElementById('help-modal');
   const helpBtn = document.getElementById('btn-help');
   const closeHelpBtn = document.getElementById('close-help');
+  const startBtn = document.getElementById('btn-start-presentation');
+  const flashOverlay = document.getElementById('lightning-flash-overlay');
 
-  if (totalStepEl) totalStepEl.textContent = String(totalSteps).padStart(2, '0');
+  // Set total steps in HUD (Station 00 is gateway, 1-14 are presentation)
+  if (totalStepEl) totalStepEl.textContent = String(totalSteps - 1).padStart(2, '0');
 
   // Populate Jump Menu
   if (jumpMenu) {
     steps.forEach((step, idx) => {
       const option = document.createElement('option');
       option.value = step.id;
-      const titleAttr = step.getAttribute('data-title') || step.querySelector('h1, h2')?.textContent?.trim() || `Station ${idx + 1}`;
-      option.textContent = `${String(idx + 1).padStart(2, '0')}. ${titleAttr.slice(0, 32)}`;
+      const titleAttr = step.getAttribute('data-title') || step.querySelector('h1, h2')?.textContent?.trim() || `Station ${idx}`;
+      if (step.id === 'tekromancy-portal') {
+        option.textContent = `00. Tekromancy Gateway`;
+      } else {
+        option.textContent = `${String(idx).padStart(2, '0')}. ${titleAttr.slice(0, 32)}`;
+      }
       jumpMenu.appendChild(option);
     });
 
@@ -45,18 +53,55 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  let previousStepId = null;
+
+  // Trigger Hyper-Warp Spiral from Station 0 to Station 1
+  function startPresentationSequence() {
+    if (window.soundEngine) {
+      window.soundEngine.initContext();
+      window.soundEngine.playHyperWarp();
+    }
+    if (window.startHyperWarpStorm) {
+      window.startHyperWarpStorm(2500);
+    }
+    api.goto('title');
+  }
+
+  if (startBtn) {
+    startBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      startPresentationSequence();
+    });
+  }
+
+  // Handle slide leave event
+  document.addEventListener('impress:stepleave', (event) => {
+    previousStepId = event.target.id;
+    if (previousStepId === 'tekromancy-portal' && event.detail && event.detail.next && event.detail.next.id === 'title') {
+      if (window.soundEngine) {
+        window.soundEngine.playHyperWarp();
+      }
+      if (window.startHyperWarpStorm) {
+        window.startHyperWarpStorm(2500);
+      }
+    }
+  });
+
   // Handle slide enter event
   document.addEventListener('impress:stepenter', (event) => {
     const activeStep = event.target;
     const stepId = activeStep.id;
     const stepIndex = steps.indexOf(activeStep);
 
+    // Update Step Counter (Station 0 is 00, 1 is 01, etc.)
     if (currentStepEl) {
-      currentStepEl.textContent = String(stepIndex + 1).padStart(2, '0');
+      currentStepEl.textContent = stepId === 'tekromancy-portal' ? '00' : String(stepIndex).padStart(2, '0');
     }
 
+    // Update Progress Bar
     if (progressBarEl) {
-      const pct = ((stepIndex + 1) / totalSteps) * 100;
+      const pct = stepId === 'tekromancy-portal' ? 0 : (stepIndex / (totalSteps - 1)) * 100;
       progressBarEl.style.width = `${pct}%`;
     }
 
@@ -69,12 +114,45 @@ document.addEventListener('DOMContentLoaded', () => {
       jumpMenu.value = stepId;
     }
 
-    // Audio SFX
-    if (window.soundEngine) {
-      if (stepId === 'eligible-receiver') {
-        window.soundEngine.playAlert();
-      } else {
-        window.soundEngine.playWhoosh();
+    // SPECIAL WARP SLAM IMPACT: Arriving at #title from #tekromancy-portal
+    if (stepId === 'title' && previousStepId === 'tekromancy-portal') {
+      // Violent lightning strike & canvas flash
+      if (window.triggerLightningStrike) {
+        window.triggerLightningStrike(1.4);
+      }
+
+      // Flash overlay
+      if (flashOverlay) {
+        flashOverlay.classList.add('flash');
+        setTimeout(() => {
+          flashOverlay.classList.remove('flash');
+        }, 150);
+      }
+
+      // Thunderous Sub-Bass Slam + Hydraulic Lock
+      if (window.soundEngine) {
+        window.soundEngine.playSlamImpact();
+      }
+
+      // Camera / Screen Impact Shake on document.body
+      document.body.classList.add('screen-impact-shake');
+      setTimeout(() => {
+        document.body.classList.remove('screen-impact-shake');
+      }, 750);
+
+      // Element Slam & Wiggle on #title
+      activeStep.classList.add('slam-wiggle');
+      setTimeout(() => {
+        activeStep.classList.remove('slam-wiggle');
+      }, 900);
+    } else {
+      // Standard slide audio SFX
+      if (window.soundEngine) {
+        if (stepId === 'eligible-receiver') {
+          window.soundEngine.playAlert();
+        } else if (stepId !== 'tekromancy-portal') {
+          window.soundEngine.playWhoosh();
+        }
       }
     }
 

@@ -153,6 +153,144 @@ class SoundEngine {
       // Ignore
     }
   }
+
+  // Epic Sci-Fi Hyper-Warp Spiral sound effect (2.2 seconds duration)
+  playHyperWarp() {
+    if (this.muted) return;
+    this.initContext();
+    if (!this.ctx) return;
+
+    try {
+      const now = this.ctx.currentTime;
+      const duration = 2.2;
+
+      // Ascending cosmic glide oscillator
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+      const filter = this.ctx.createBiquadFilter();
+
+      osc.type = 'sawtooth';
+      osc.frequency.setValueAtTime(70, now);
+      osc.frequency.exponentialRampToValueAtTime(750, now + duration);
+
+      filter.type = 'lowpass';
+      filter.frequency.setValueAtTime(250, now);
+      filter.frequency.exponentialRampToValueAtTime(3200, now + duration);
+
+      gain.gain.setValueAtTime(0.01, now);
+      gain.gain.linearRampToValueAtTime(0.18, now + duration * 0.7);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + duration);
+
+      osc.connect(filter);
+      filter.connect(gain);
+      gain.connect(this.ctx.destination);
+
+      osc.start(now);
+      osc.stop(now + duration + 0.05);
+
+      // Electrical crackle / noise rush
+      const bufferSize = this.ctx.sampleRate * duration;
+      const noiseBuffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
+      const output = noiseBuffer.getChannelData(0);
+      for (let i = 0; i < bufferSize; i++) {
+        output[i] = (Math.random() * 2 - 1) * Math.exp(-i / (bufferSize * 0.8));
+      }
+
+      const whiteNoise = this.ctx.createBufferSource();
+      whiteNoise.buffer = noiseBuffer;
+
+      const noiseFilter = this.ctx.createBiquadFilter();
+      noiseFilter.type = 'bandpass';
+      noiseFilter.frequency.setValueAtTime(600, now);
+      noiseFilter.frequency.exponentialRampToValueAtTime(2400, now + duration);
+      noiseFilter.Q.setValueAtTime(3, now);
+
+      const noiseGain = this.ctx.createGain();
+      noiseGain.gain.setValueAtTime(0.02, now);
+      noiseGain.gain.linearRampToValueAtTime(0.14, now + duration * 0.8);
+      noiseGain.gain.exponentialRampToValueAtTime(0.001, now + duration);
+
+      whiteNoise.connect(noiseFilter);
+      noiseFilter.connect(noiseGain);
+      noiseGain.connect(this.ctx.destination);
+
+      whiteNoise.start(now);
+      whiteNoise.stop(now + duration + 0.05);
+    } catch {
+      // Ignore
+    }
+  }
+
+  // Thunderous Sub-Bass Slam & Mechanical Hydraulic Lock Impact
+  playSlamImpact() {
+    if (this.muted) return;
+    this.initContext();
+    if (!this.ctx) return;
+
+    try {
+      const now = this.ctx.currentTime;
+
+      // Heavy 35Hz Sub-Bass Thud
+      const bassOsc = this.ctx.createOscillator();
+      const bassGain = this.ctx.createGain();
+      bassOsc.type = 'sine';
+      bassOsc.frequency.setValueAtTime(130, now);
+      bassOsc.frequency.exponentialRampToValueAtTime(32, now + 0.55);
+
+      bassGain.gain.setValueAtTime(0.35, now);
+      bassGain.gain.exponentialRampToValueAtTime(0.001, now + 0.7);
+
+      bassOsc.connect(bassGain);
+      bassGain.connect(this.ctx.destination);
+      bassOsc.start(now);
+      bassOsc.stop(now + 0.72);
+
+      // Metallic Crunch / Hydraulic Lock Snap
+      const snapOsc = this.ctx.createOscillator();
+      const snapGain = this.ctx.createGain();
+      snapOsc.type = 'triangle';
+      snapOsc.frequency.setValueAtTime(1800, now);
+      snapOsc.frequency.exponentialRampToValueAtTime(180, now + 0.12);
+
+      snapGain.gain.setValueAtTime(0.2, now);
+      snapGain.gain.exponentialRampToValueAtTime(0.001, now + 0.15);
+
+      snapOsc.connect(snapGain);
+      snapGain.connect(this.ctx.destination);
+      snapOsc.start(now);
+      snapOsc.stop(now + 0.16);
+
+      // Thunder noise shockwave
+      const noiseLen = 0.6;
+      const bufferSize = Math.floor(this.ctx.sampleRate * noiseLen);
+      const noiseBuffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
+      const data = noiseBuffer.getChannelData(0);
+      for (let i = 0; i < bufferSize; i++) {
+        data[i] = Math.random() * 2 - 1;
+      }
+
+      const noiseSource = this.ctx.createBufferSource();
+      noiseSource.buffer = noiseBuffer;
+
+      const thunderFilter = this.ctx.createBiquadFilter();
+      thunderFilter.type = 'lowpass';
+      thunderFilter.frequency.setValueAtTime(300, now);
+      thunderFilter.frequency.exponentialRampToValueAtTime(60, now + noiseLen);
+
+      const thunderGain = this.ctx.createGain();
+      thunderGain.gain.setValueAtTime(0.25, now);
+      thunderGain.gain.exponentialRampToValueAtTime(0.001, now + noiseLen);
+
+      noiseSource.connect(thunderFilter);
+      thunderFilter.connect(thunderGain);
+      thunderGain.connect(this.ctx.destination);
+
+      noiseSource.start(now);
+      noiseSource.stop(now + noiseLen + 0.05);
+    } catch {
+      // Ignore
+    }
+  }
 }
 
 window.soundEngine = new SoundEngine();
