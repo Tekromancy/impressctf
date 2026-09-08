@@ -1,0 +1,887 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>The Crucible of Hackers: CTFs, Red vs. Blue Teaming, & Cyber Ranges</title>
+  <meta name="description" content="A 3D impress.js presentation on the history of CTF competitions, military Red Cell roots, Eligible Receiver 97, Attack-Defense mechanics, and open-source lab frameworks.">
+  
+  <link rel="stylesheet" crossorigin href="./assets/index-lC1Ny9X2.css">
+</head>
+<body class="impress-not-supported">
+
+  <!-- Fallback message for older browsers -->
+  <div class="fallback-message">
+    <p>Your browser <b>doesn't support the features required</b> by impress.js, so you are presented with a simplified version of this presentation.</p>
+    <p>For the best 3D cyber visual experience, please use the latest version of Chrome, Firefox, Safari, or Edge.</p>
+  </div>
+
+  <!-- HEADS-UP DISPLAY (HUD) TOP BAR -->
+  <header id="hud-header">
+    <div class="hud-brand">
+      <div class="hud-status-dot"></div>
+      <span class="hud-brand-tag">TEKROMANCY // CTF PROTOCOL</span>
+    </div>
+
+    <div class="hud-center-title">
+      STATION: <span id="hud-step-title">The Nexus</span>
+    </div>
+
+    <div class="hud-controls">
+      <select id="hud-jump-menu" aria-label="Jump to station"></select>
+      <button id="btn-autoplay" class="hud-btn" title="Toggle Autoplay (7s per slide)">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+        <span>Autoplay</span>
+      </button>
+      <button id="btn-overview" class="hud-btn" title="Zoom Out to 3D Overview (O)">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+        <span>Overview</span>
+      </button>
+      <button id="btn-mute" class="hud-btn" title="Toggle Sound (M)">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>
+        <span>Audio FX</span>
+      </button>
+      <button id="btn-fullscreen" class="hud-btn" title="Toggle Fullscreen (F)">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"></path></svg>
+        <span>Full</span>
+      </button>
+      <button id="btn-help" class="hud-btn" title="Keyboard Shortcuts (?)">
+        <span>?</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- HUD BOTTOM PROGRESS BAR -->
+  <footer id="hud-footer">
+    <div id="hud-progress-bar">
+      <div id="hud-progress-fill"></div>
+    </div>
+    <div class="hud-counter">
+      STATION <span id="hud-step-current">01</span> <span class="total">/ <span id="hud-step-total">14</span></span>
+    </div>
+    <div class="hud-hints">
+      <span><kbd>Space</kbd> / <kbd>→</kbd> Advance</span>
+      <span><kbd>←</kbd> Back</span>
+      <span><kbd>O</kbd> 3D Overview</span>
+      <span><kbd>P</kbd> Presenter Notes</span>
+      <span><kbd>M</kbd> Mute Audio</span>
+    </div>
+  </footer>
+
+  <!-- HELP MODAL DIALOG -->
+  <div id="help-modal" class="hidden">
+    <div class="help-card">
+      <h3>Cyber Range Controls</h3>
+      <div class="help-row"><span>Next Slide</span><kbd>Space / Right Arrow / Page Down</kbd></div>
+      <div class="help-row"><span>Previous Slide</span><kbd>Left Arrow / Page Up</kbd></div>
+      <div class="help-row"><span>3D Orbit Overview</span><kbd>O Key</kbd></div>
+      <div class="help-row"><span>Audio FX Mute</span><kbd>M Key</kbd></div>
+      <div class="help-row"><span>Toggle Fullscreen</span><kbd>F Key</kbd></div>
+      <div class="help-row"><span>Toggle Autoplay</span><kbd>A Key</kbd></div>
+      <div class="help-row"><span>Presenter Notes Console</span><kbd>P Key</kbd></div>
+      <div style="margin-top: 20px; text-align: right;">
+        <button id="close-help" class="hud-btn active-toggle">Close Window</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3D IMPRESS PRESENTATION CONTAINER -->
+  <div id="impress" 
+       data-transition-duration="1000"
+       data-width="1200"
+       data-height="800"
+       data-max-scale="3"
+       data-min-scale="0.1"
+       data-perspective="1000">
+
+    <!-- ====================================================================
+         STATION 1: TITLE / THE NEXUS
+         ==================================================================== -->
+    <div id="title" class="step" data-x="0" data-y="0" data-z="0" data-scale="2" data-title="The Crucible: Introduction">
+      <div class="cyber-badge green">DEF CON 4 (1996) ➔ MODERN ADVERSARY EMULATION</div>
+      
+      <div class="grid-2" style="align-items: center; margin-top: 10px;">
+        <div>
+          <h1 class="glow-cyan" style="font-size: 42px; line-height: 1.15;">
+            THE CRUCIBLE<br><span class="glow-red">OF HACKERS</span>
+          </h1>
+          <p style="font-size: 16px; color: var(--text-muted); margin-top: 14px; line-height: 1.6;">
+            The History of Capture The Flag, Red vs. Blue Teaming Doctrine, and Open-Source Cyber Range Frameworks.
+          </p>
+
+          <div style="margin-top: 24px;" class="substep">
+            <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+              <span class="pill pill-red">Offensive Exploitation</span>
+              <span class="pill pill-cyan">Blue Team Detections</span>
+              <span class="pill pill-purple">Purple Feedback</span>
+              <span class="pill pill-green">Open-Source Labs</span>
+            </div>
+          </div>
+
+          <div style="margin-top: 28px; font-family: var(--font-mono); font-size: 12px; color: #64748b;" class="substep">
+            <div>DISPATCH BY: <span style="color: #cbd5e1; font-weight: 700;">Joshua Edward McLaughlin Cox</span></div>
+            <div>ORIGIN: <span style="color: var(--cyan);">tekromancy.com</span> // SECURITY DIVISION</div>
+          </div>
+        </div>
+
+        <div class="slide-img-frame" style="height: 380px;">
+          <img src="./assets/hero-ctf-jmuDCAur.jpg" alt="The Crucible of Hackers Cyber Range">
+          <div class="caption">SYS_ID: CRUCIBLE_STATION_01 // LIVE NETWORK TOPOLOGY</div>
+        </div>
+      </div>
+
+      <div class="notes">
+        Welcome everyone. Today we are exploring the crucible through which modern offensive security, vulnerability research, and incident response were born: Capture The Flag competitions and the military doctrine of Red vs. Blue teaming.
+      </div>
+    </div>
+
+    <!-- ====================================================================
+         STATION 2: MILITARY ROOTS & THE RED CELL
+         ==================================================================== -->
+    <div id="origins" class="step" data-x="2200" data-y="-400" data-z="-800" data-rotate-y="35" data-rotate-x="10" data-scale="1.2" data-title="Part I: Military Roots">
+      <div class="cyber-badge red">PART I: THE COLD WAR GENESIS</div>
+      <div class="slide-header">
+        <h2 class="glow-red">Military Roots & The Red Cell</h2>
+        <p class="subtitle">From Cold War strategic wargames to Richard Marcinko's ruthless physical penetration tests.</p>
+      </div>
+
+      <div class="grid-2">
+        <div>
+          <div class="cyber-card red-team">
+            <h3>RAND Corporation & Warsaw Pact Emulation</h3>
+            <p>During the 1960s and 70s, the US Department of Defense and think tanks like RAND formalized the concept of <strong>Red Teaming</strong>: deploying an independent faction tasked with thinking, planning, and striking exactly like the Soviet Union against Western defenses.</p>
+          </div>
+
+          <div class="cyber-card red-team substep" style="margin-top: 16px;">
+            <h3>The 1980s US Navy Red Cell</h3>
+            <p>Headed by Commander Richard Marcinko, Red Cell tested security at nuclear installations, submarines, and airbases using ruthless physical tradecraft:</p>
+            <ul>
+              <li>Picking mechanical perimeter locks & forging clearance badges</li>
+              <li>Smuggling mock explosives into sensitive command facilities</li>
+              <li>Kidnapping base commanders to prove physical perimeter failure</li>
+            </ul>
+          </div>
+
+          <div class="cyber-quote red substep">
+            "Their methods proved that checklist compliance was utterly meaningless against a determined adversary."
+          </div>
+        </div>
+
+        <div class="slide-img-frame" style="height: 480px;">
+          <img src="./assets/security-DIyaZ0Q8.jpg" alt="Security Physical and Cyber Operations">
+          <div class="caption">CLASSIFIED // OP_RED_CELL: ZERO-COMPLIANCE REALITY CHECK</div>
+        </div>
+      </div>
+
+      <div class="notes">
+        Point out that Red Teaming didn't start in computer labs—it was born from Cold War military necessity. Marcinko's Red Cell showed that checking boxes on an audit list doesn't stop someone who actually wants to get in.
+      </div>
+    </div>
+
+    <!-- ====================================================================
+         STATION 3: ELIGIBLE RECEIVER 97
+         ==================================================================== -->
+    <div id="eligible-receiver" class="step" data-x="4200" data-y="500" data-z="-2000" data-rotate-y="65" data-rotate-z="-15" data-scale="1.2" data-title="Eligible Receiver 97">
+      <div class="cyber-badge red">JUNE 1997: THE CYBER WAKE-UP CALL</div>
+      <div class="slide-header">
+        <h2 class="glow-red" style="color: #ff3366;">Exercise Eligible Receiver 97</h2>
+        <p class="subtitle">Commercial off-the-shelf software and underground scripts compromise the Pentagon.</p>
+      </div>
+
+      <div class="grid-2">
+        <div>
+          <div class="cyber-card" style="border-top: 3px solid var(--red);">
+            <h3 class="glow-red">Strict Rules of Engagement</h3>
+            <p>The Department of Defense tasked its Red Team to launch a simulated cyber assault with one strict limitation: <strong>Use exclusively publicly available, commercial-off-the-shelf software and freeware scripts downloaded from underground hacker sites.</strong></p>
+          </div>
+
+          <div class="cyber-card substep" style="margin-top: 16px; border-top: 3px solid var(--amber);">
+            <h3 class="glow-gold">The Catastrophic Findings</h3>
+            <ul>
+              <li>Compromised critical US military command-and-control (C2) grids in days</li>
+              <li>Gained root access to regional electrical utilities and telecom switches</li>
+              <li>Proved public internet infrastructure could induce catastrophic military paralysis</li>
+            </ul>
+          </div>
+        </div>
+
+        <div>
+          <div class="terminal-box substep">
+            <div class="terminal-bar">
+              <div class="terminal-dots">
+                <div class="terminal-dot dot-red"></div>
+                <div class="terminal-dot dot-yellow"></div>
+                <div class="terminal-dot dot-green"></div>
+              </div>
+              <span class="terminal-title">ALERT // ER97_INCIDENT_CONSOLE.LOG</span>
+            </div>
+            <div class="terminal-body">
+<pre>
+<span class="comment"># EXERCISE ELIGIBLE RECEIVER 97 - RED CELL TRACE</span>
+<span class="cmd">[!] TARGET:</span> <span class="output">US Pacific Command / Defense Switching Network</span>
+<span class="cmd">[+] SCANNING:</span> <span class="param">commercial port scanner / war dialer</span>
+<span class="output">[+] FOUND: Unpatched sendmail & Solaris RPC services</span>
+<span class="cmd">[>] EXPLOIT:</span> <span class="param">underground hacker script (phrack_c.c)</span>
+<span class="alert-text">[***] SYSTEM PWNED: ROOT SHELL ESTABLISHED (uid=0)</span>
+<span class="output">========================================================</span>
+<span class="flag">RESULT: Command & Control grid completely penetrated.</span>
+<span class="comment">CONCLUSION: Commercial networks represent an existential vector.</span>
+</pre>
+            </div>
+          </div>
+
+          <div class="cyber-card substep" style="margin-top: 14px; background: rgba(255, 42, 85, 0.08); border-color: rgba(255, 42, 85, 0.4);">
+            <p style="font-size: 13px; color: #fecdd3;">
+              Eligible Receiver 97 served as the historic catalyst that institutionalized permanent military cyber commands and mandated enterprise Blue Team SIEM monitoring.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div class="notes">
+        Eligible Receiver 97 proved that attackers didn't need classified superweapons. A handful of scripts downloaded from underground newsgroups and commercial tools were enough to take down critical infrastructure.
+      </div>
+    </div>
+
+    <!-- ====================================================================
+         STATION 4: THE COMBAT TRIAD (RED, BLUE, PURPLE)
+         ==================================================================== -->
+    <div id="doctrine-triad" class="step" data-x="3400" data-y="2600" data-z="-1000" data-rotate-x="60" data-rotate-y="15" data-rotate-z="45" data-scale="1.4" data-title="The Combat Triad">
+      <div class="cyber-badge purple">THE MODERN DOCTRINE</div>
+      <div class="slide-header">
+        <h2 class="glow-purple">The Combat Triad: Red, Blue, & Purple</h2>
+        <p class="subtitle">Adversary simulation meets defensive telemetry in a continuous optimization loop.</p>
+      </div>
+
+      <div class="grid-3">
+        <div class="cyber-card red-team substep">
+          <div class="cyber-badge red">RED TEAM</div>
+          <h3 class="glow-red">Adversary Simulation</h3>
+          <p>Operates like an active threat actor executing real-world TTPs:</p>
+          <ul>
+            <li>Initial access & phishing tradecraft</li>
+            <li>Custom implant development & C2</li>
+            <li>Kerberoasting, AD abuse, privilege escalation</li>
+            <li>Stealthy lateral movement & data staging</li>
+          </ul>
+        </div>
+
+        <div class="cyber-card blue-team substep">
+          <div class="cyber-badge">BLUE TEAM</div>
+          <h3 class="glow-cyan">Defensive Hardening</h3>
+          <p>Defends enterprise assets through telemetry, detection, and mitigation:</p>
+          <ul>
+            <li>Endpoint Detection & Response (EDR)</li>
+            <li>SIEM ingestion, correlation rules & alerts</li>
+            <li>Kernel eBPF anomaly tracking</li>
+            <li>Memory forensics & incident containment</li>
+          </ul>
+        </div>
+
+        <div class="cyber-card purple-team substep">
+          <div class="cyber-badge purple">PURPLE TEAM</div>
+          <h3 class="glow-purple">The Feedback Loop</h3>
+          <p>Collaborative synthesis between Red and Blue forces:</p>
+          <ul>
+            <li>Tests MITRE ATT&CK techniques side-by-side</li>
+            <li>Verifies whether SIEM/EDR alarms actually fire</li>
+            <li>Calibrates log ingestion and closes blind spots</li>
+            <li>Measures detection coverage with data</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="terminal-box substep" style="margin-top: 24px;">
+        <div class="terminal-body" style="padding: 14px 20px; text-align: center; font-family: var(--font-mono); font-size: 13px;">
+          <span style="color: var(--red);">[ RED TEAM: Exploit / C2 ]</span>
+          <span style="color: #64748b; margin: 0 12px;">==== COMBAT ====></span>
+          <span style="color: var(--cyan);">[ BLUE TEAM: SIEM / EDR Forensics ]</span>
+          <span style="color: #64748b; margin: 0 12px;">==== FEEDBACK ====></span>
+          <span style="color: var(--purple); font-weight: 700;">[ PURPLE: Continuous Detection Hardening ]</span>
+        </div>
+      </div>
+
+      <div class="notes">
+        Emphasize that without the Purple loop, Red teams just embarrass Blue teams, and Blue teams drown in alerts without knowing if their detections actually work against real attacker tradecraft.
+      </div>
+    </div>
+
+    <!-- ====================================================================
+         STATION 5: DEF CON 4 (1996) — THE BIRTH OF CTF
+         ==================================================================== -->
+    <div id="defcon-genesis" class="step" data-x="1200" data-y="3800" data-z="-500" data-rotate-x="85" data-rotate-y="-25" data-scale="1.3" data-title="DEF CON 4 (1996)">
+      <div class="cyber-badge green">PART II: 1996 LAS VEGAS</div>
+      <div class="slide-header">
+        <h2 class="glow-green">DEF CON 4: The Birth of CTF</h2>
+        <p class="subtitle">Physical Ethernet cables, unmanaged 10BASE-T hubs, and frantic bash loops.</p>
+      </div>
+
+      <div class="grid-2">
+        <div>
+          <div class="cyber-card">
+            <h3>The Wild West of Wargaming</h3>
+            <p>At DEF CON 4 in 1996, organizers taped RJ45 twisted-pair and coaxial cables across hotel casino conference carpets. Unmanaged 10BASE-T hubs connected Linux and BSD towers into a free-for-all shared broadcast domain.</p>
+          </div>
+
+          <div class="cyber-card substep" style="margin-top: 16px;">
+            <h3 class="glow-cyan">Offense vs. Defense in 1996</h3>
+            <ul>
+              <li><strong>The Attack:</strong> Promiscuous packet sniffing over unencrypted hubs, ARP spoofing, broadcast storming, telnet sniffing.</li>
+              <li><strong>The Defense:</strong> Emergency bash loops killing incoming telnet sessions, quick hex patches to <code>/bin/login</code>, iptables predecessor ipfw.</li>
+            </ul>
+          </div>
+        </div>
+
+        <div>
+          <div class="terminal-box substep">
+            <div class="terminal-bar">
+              <div class="terminal-dots">
+                <div class="terminal-dot dot-red"></div>
+                <div class="terminal-dot dot-yellow"></div>
+                <div class="terminal-dot dot-green"></div>
+              </div>
+              <span class="terminal-title">BASH // DEFCON4_DEFENSE.SH</span>
+            </div>
+            <div class="terminal-body">
+<pre>
+<span class="comment">#!/bin/bash</span>
+<span class="comment"># DEF CON 4 Emergency Survival Script (1996)</span>
+<span class="cmd">while true; do</span>
+  <span class="comment"># Kill all unauthorized telnet logins from rivals</span>
+  <span class="cmd">ps aux</span> | grep in.telnetd | grep -v root | awk '{print $2}' | xargs kill -9
+  <span class="comment"># Check if our secret flag file was modified</span>
+  <span class="cmd">md5sum /root/flag.txt</span> >> /tmp/flag_integrity.log
+  <span class="comment"># Flush ARP table to survive ARP poisoning</span>
+  <span class="cmd">arp -d -a</span>
+  <span class="cmd">sleep 1</span>
+<span class="cmd">done</span>
+</pre>
+            </div>
+          </div>
+
+          <div class="cyber-card substep" style="margin-top: 16px;">
+            <p style="font-size: 13px; color: var(--text-muted);">
+              From these chaotic, cable-strewn beginnings emerged the formal rule sets that would define professional competitive hacking for the next 30 years.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div class="notes">
+        Paint the picture: physical cables taped to casino carpets, unencrypted hubs where everyone saw everyone else's traffic. Hackers had to fight off attackers while writing scripts to keep their systems alive.
+      </div>
+    </div>
+
+    <!-- ====================================================================
+         STATION 6: THE ATTACK-DEFENSE CRUCIBLE
+         ==================================================================== -->
+    <div id="attack-defense" class="step" data-x="-1400" data-y="3600" data-z="600" data-rotate-y="-45" data-rotate-x="30" data-scale="1.3" data-title="Attack-Defense Format">
+      <div class="cyber-badge red">THE PREMIER TOURNAMENT FORMAT</div>
+      <div class="slide-header">
+        <h2 class="glow-red">The Attack-Defense Crucible</h2>
+        <p class="subtitle">Live binary exploitation, zero-day discovery, automated patching, and service availability SLAs.</p>
+      </div>
+
+      <div class="grid-3">
+        <div class="cyber-card red-team substep">
+          <div class="cyber-badge red">1. REVERSE & EXPLOIT</div>
+          <h3>Find the Zero-Day</h3>
+          <p>Every team receives identical server images running proprietary custom services written in C, C++, or x86 assembly with deliberate bugs:</p>
+          <ul>
+            <li>Stack & heap buffer overflows</li>
+            <li>Format string vulnerabilities</li>
+            <li>Race conditions & flawed crypto</li>
+            <li>Automate exploit payload submission</li>
+          </ul>
+        </div>
+
+        <div class="cyber-card blue-team substep">
+          <div class="cyber-badge">2. PATCH & HARDEN</div>
+          <h3>Binary Patching</h3>
+          <p>Teams must patch their own vulnerabilities in real time:</p>
+          <ul>
+            <li>Binary diffing & hex-editing ELF binaries</li>
+            <li>Hooking functions with LD_PRELOAD</li>
+            <li>Writing network filters with eBPF/iptables</li>
+            <li>Closing the exploit before rivals reverse it</li>
+          </ul>
+        </div>
+
+        <div class="cyber-card purple-team substep">
+          <div class="cyber-badge amber">3. SERVICE SLA</div>
+          <h3>SLA Availability</h3>
+          <p>You cannot simply pull the network plug or crash the service:</p>
+          <ul>
+            <li>Central scoring engine verifies functionality</li>
+            <li>Submits legitimate test traffic every tick</li>
+            <li>If your patch breaks legitimate behavior: SLA penalty</li>
+            <li>Must steal flags while keeping services green</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="cyber-card substep" style="margin-top: 24px; background: rgba(0, 240, 255, 0.05); border-color: rgba(0, 240, 255, 0.3);">
+        <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;">
+          <div>
+            <h4 style="color: var(--cyan); font-size: 15px;">THE ATTACK-DEFENSE SCORE FORMULA</h4>
+            <p style="font-size: 13px; color: var(--text-muted);">Points = (Flags Captured from Rivals) + (Flags Defended) - (Service SLA Downtime Penalties)</p>
+          </div>
+          <span class="pill pill-green" style="font-size: 12px; padding: 6px 14px;">TICK RATE: 60 - 180s ROUNDS</span>
+        </div>
+      </div>
+
+      <div class="notes">
+        Attack-Defense is the absolute pinnacle of competitive hacking. It forces teams to balance aggression and defense. You can have the best exploit in the world, but if your patch breaks the service SLA, you lose points every round.
+      </div>
+    </div>
+
+    <!-- ====================================================================
+         STATION 7: THE DYNASTY OF CTF ORGANIZERS
+         ==================================================================== -->
+    <div id="defcon-dynasty" class="step" data-x="-3400" data-y="2000" data-z="1400" data-rotate-y="-80" data-rotate-z="25" data-scale="1.2" data-title="DEF CON CTF Dynasty">
+      <div class="cyber-badge gold">THREE DECADES OF MASTERY</div>
+      <div class="slide-header">
+        <h2 class="glow-gold">The Dynasty of DEF CON CTF</h2>
+        <p class="subtitle">The legendary hacker collectives who forged the world's premier hacking competition.</p>
+      </div>
+
+      <div class="grid-3" style="margin-top: 10px;">
+        <div class="cyber-card substep">
+          <span class="pill pill-cyan">LATE 1990s</span>
+          <h3 style="margin-top: 8px;">K2 & DEF CON Staff</h3>
+          <p>Pioneered network wargames on physical cables. Established the basic concepts of flags, scoring, and time limits in chaotic conference environments.</p>
+        </div>
+
+        <div class="cyber-card substep">
+          <span class="pill pill-cyan">EARLY 2000s</span>
+          <h3 style="margin-top: 8px;">Goolsbey & DDL</h3>
+          <p>Introduced automated scoring servers, structured challenge formats, and the transition from casual games to rigorously monitored international tournaments.</p>
+        </div>
+
+        <div class="cyber-card substep">
+          <span class="pill pill-purple">2006 – 2010</span>
+          <h3 style="margin-top: 8px;">Kenshoto</h3>
+          <p>Revolutionized Attack-Defense with custom network topologies, proprietary scoring daemons, and hyper-complex multi-threaded binary challenges.</p>
+        </div>
+
+        <div class="cyber-card substep">
+          <span class="pill pill-red">2013 – 2017</span>
+          <h3 style="margin-top: 8px;">LegitBS</h3>
+          <p><strong>Legitimate Business Syndicate</strong> introduced custom processor architectures (DEFCON x86, cLEMENCy) running on bare QEMU hypervisors to defeat existing disassemblers.</p>
+        </div>
+
+        <div class="cyber-card substep">
+          <span class="pill pill-green">2018 – 2021</span>
+          <h3 style="margin-top: 8px;">Order of the Overflow</h3>
+          <p>Pushed into microservices, browser zero-days, multi-architecture pwn, and hardware hacking, setting a new benchmark for competitive difficulty.</p>
+        </div>
+
+        <div class="cyber-card substep">
+          <span class="pill pill-gold">2022 – PRESENT</span>
+          <h3 style="margin-top: 8px;">Nautilus Institute</h3>
+          <p>Current organizers: satellite hacking, live cyber-physical systems, automotive CAN bus, and integrating autonomous AI reasoning into qualification events.</p>
+        </div>
+      </div>
+
+      <div class="notes">
+        Highlight LegitBS and cLEMENCy in 2017—they created a 9-bit byte architecture so teams couldn't use standard IDA or Ghidra plugins without writing their own disassembler in the first hours of the CTF!
+      </div>
+    </div>
+
+    <!-- ====================================================================
+         STATION 8: THE 3 MODERN COMPETITION FORMATS
+         ==================================================================== -->
+    <div id="three-formats" class="step" data-x="-3600" data-y="-800" data-z="800" data-rotate-x="-30" data-rotate-y="-40" data-rotate-z="-15" data-scale="1.3" data-title="The 3 Modern Formats">
+      <div class="cyber-badge">ARCHITECTURAL TAXONOMY</div>
+      <div class="slide-header">
+        <h2 class="glow-cyan">The Three Modern CTF Formats</h2>
+        <p class="subtitle">Comparing the mechanics, required skillsets, and battlefield dynamics of the major formats.</p>
+      </div>
+
+      <div class="grid-3">
+        <div class="cyber-card blue-team substep">
+          <div class="cyber-badge">FORMAT 1</div>
+          <h3 class="glow-cyan">Jeopardy</h3>
+          <p>Static challenge board categorized by technical discipline. Points scale dynamically with solver count.</p>
+          <ul>
+            <li><strong>Categories:</strong> Web, Pwn (Binary Exploitation), Reverse Engineering, Cryptography, Forensics</li>
+            <li><strong>Skills:</strong> Deep technical problem solving, code auditing, solo or distributed team workflows</li>
+            <li><strong>Examples:</strong> CTFtime global circuit, picoCTF, Google CTF, DEF CON Quals</li>
+          </ul>
+        </div>
+
+        <div class="cyber-card red-team substep">
+          <div class="cyber-badge red">FORMAT 2</div>
+          <h3 class="glow-red">Attack-Defense</h3>
+          <p>Live combat between rival teams defending identical networked server infrastructure over dedicated VPNs.</p>
+          <ul>
+            <li><strong>Categories:</strong> 0-Day Discovery, Live Binary Patching, Network Packet Sniffing, SLA Defending</li>
+            <li><strong>Skills:</strong> Fast-paced script automation, memory corruption mitigation, binary diffing</li>
+            <li><strong>Examples:</strong> DEF CON Finals, FAUST CTF, HITCON, iCTF, Enowars</li>
+          </ul>
+        </div>
+
+        <div class="cyber-card purple-team substep">
+          <div class="cyber-badge purple">FORMAT 3</div>
+          <h3 class="glow-purple">King of the Hill (KotH)</h3>
+          <p>Multiple teams battle for persistent root access on shared target machines, maintaining their foothold while evicting rivals.</p>
+          <ul>
+            <li><strong>Categories:</strong> Privilege Escalation, Linux Process Hunting, Backdoor Eviction, Rootkits</li>
+            <li><strong>Skills:</strong> High-stress Linux administration, stealth persistence, adversarial containment</li>
+            <li><strong>Examples:</strong> DEF CON OpenCTF, HackTheBox KotH, University cyber ranges</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="notes">
+        Explain the difference: Jeopardy tests depth in specific domains. Attack-defense tests speed, collaboration, and binary patching. KotH tests raw adversarial persistence and Linux sysadmin reflexes.
+      </div>
+    </div>
+
+    <!-- ====================================================================
+         STATION 9: OPEN-SOURCE ARSENAL
+         ==================================================================== -->
+    <div id="open-source-arsenal" class="step" data-x="-1800" data-y="-2600" data-z="0" data-rotate-x="-60" data-rotate-y="20" data-scale="1.3" data-title="Open-Source Arsenal">
+      <div class="cyber-badge green">PART III: GITHUB REPOSITORIES</div>
+      <div class="slide-header">
+        <h2 class="glow-green">The Open-Source Cyber Range Arsenal</h2>
+        <p class="subtitle">Production-grade open-source platforms to host company exercises, university games, and homelabs.</p>
+      </div>
+
+      <div class="grid-3">
+        <div class="cyber-card substep">
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <h3 style="color: var(--cyan);">CTFd / CTFd</h3>
+            <span class="pill pill-cyan">Python / Flask</span>
+          </div>
+          <p style="margin-top: 8px;">The undisputed king of Jeopardy CTFs. Powers thousands of worldwide competitions. Plugins for Discord/Slack, dynamic scoring, dockerized deployment.</p>
+        </div>
+
+        <div class="cyber-card substep">
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <h3 style="color: var(--cyan);">google / kctf</h3>
+            <span class="pill pill-cyan">Go / nsjail</span>
+          </div>
+          <p style="margin-top: 8px;">Google's enterprise infrastructure for running dangerous pwnable and web challenges isolated inside cryptographically secure nsjail containers on Kubernetes.</p>
+        </div>
+
+        <div class="cyber-card substep">
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <h3 style="color: var(--purple);">RootTheBox</h3>
+            <span class="pill pill-purple">Tornado / WS</span>
+          </div>
+          <p style="margin-top: 8px;">Gamified cyber-combat and KotH platform with corporate espionage mechanics: earn in-game cash to purchase black-market malware and DDoS attacks against rivals.</p>
+        </div>
+
+        <div class="cyber-card substep">
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <h3 style="color: var(--red);">FAUST CTF Engine</h3>
+            <span class="pill pill-red">Python / WireGuard</span>
+          </div>
+          <p style="margin-top: 8px;">Developed by FAU Germany for massive international Attack-Defense games. Full game controller, automated SLA flag checkers, and WireGuard/BGP network routing.</p>
+        </div>
+
+        <div class="cyber-card substep">
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <h3 style="color: var(--green);">MITRE CALDERA</h3>
+            <span class="pill pill-green">Python / ATT&CK</span>
+          </div>
+          <p style="margin-top: 8px;">Automates adversary behavioral profiles aligned to MITRE ATT&CK. Deploys lightweight agents across Windows/Linux to test whether your Blue Team detections actually fire.</p>
+        </div>
+
+        <div class="cyber-card substep">
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <h3 style="color: var(--amber);">GOAD</h3>
+            <span class="pill pill-red">Ansible / Terraform</span>
+          </div>
+          <p style="margin-top: 8px;"><strong>Game of Active Directory:</strong> Multi-domain vulnerable enterprise Active Directory forest. Ideal for practicing Kerberoasting, ACL abuse, and AD CS certificate escalations.</p>
+        </div>
+      </div>
+
+      <div class="notes">
+        You don't need to reinvent the wheel. If you want a weekend Jeopardy CTF, use CTFd. If you want an Active Directory hacking lab, use GOAD. If you want automated adversary emulation against your SIEM, use CALDERA.
+      </div>
+    </div>
+
+    <!-- ====================================================================
+         STATION 10: COMPARISON MATRIX
+         ==================================================================== -->
+    <div id="comparison-matrix" class="step" data-x="600" data-y="-2800" data-z="-1000" data-rotate-x="-45" data-rotate-y="-30" data-scale="1.4" data-title="Comparison Matrix">
+      <div class="cyber-badge gold">EVALUATION GUIDE</div>
+      <div class="slide-header">
+        <h2 class="glow-gold">Platform Comparison Matrix</h2>
+        <p class="subtitle">Side-by-side technical evaluation of the top open-source security training platforms.</p>
+      </div>
+
+      <table class="cyber-table">
+        <thead>
+          <tr>
+            <th>Repository</th>
+            <th>Format</th>
+            <th>Stack</th>
+            <th>Deployment</th>
+            <th>Maintenance</th>
+            <th>Best Use Case</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="substep">
+            <td><strong>CTFd</strong></td>
+            <td><span class="pill pill-cyan">Jeopardy</span></td>
+            <td>Flask / Redis / MariaDB</td>
+            <td>Docker Compose</td>
+            <td><span class="pill pill-green">High</span></td>
+            <td>Corporate events, school/university CTFs, fast setup</td>
+          </tr>
+          <tr class="substep">
+            <td><strong>RootTheBox</strong></td>
+            <td><span class="pill pill-purple">KotH / Game</span></td>
+            <td>Tornado / WebSockets</td>
+            <td>Docker / Bare Metal</td>
+            <td><span class="pill pill-cyan">Moderate</span></td>
+            <td>Gamified espionage, interactive team workshops</td>
+          </tr>
+          <tr class="substep">
+            <td><strong>kctf (Google)</strong></td>
+            <td><span class="pill pill-cyan">Container Sandbox</span></td>
+            <td>Go / nsjail / Bash</td>
+            <td>Kubernetes (GKE)</td>
+            <td><span class="pill pill-green">High</span></td>
+            <td>Zero-trust binary pwn & RCE container isolation</td>
+          </tr>
+          <tr class="substep">
+            <td><strong>Enowars</strong></td>
+            <td><span class="pill pill-red">Attack-Defense</span></td>
+            <td>C# / .NET / Redis</td>
+            <td>Docker Engine</td>
+            <td><span class="pill pill-green">High</span></td>
+            <td>Multi-team tournament engine with sub-second SLA</td>
+          </tr>
+          <tr class="substep">
+            <td><strong>MITRE CALDERA</strong></td>
+            <td><span class="pill pill-green">Adversary Emulation</span></td>
+            <td>Python / ATT&CK API</td>
+            <td>Cross-Platform</td>
+            <td><span class="pill pill-green">High</span></td>
+            <td>Testing SIEM/EDR detection rules against ATT&CK TTPs</td>
+          </tr>
+          <tr class="substep">
+            <td><strong>GOAD</strong></td>
+            <td><span class="pill pill-red">Active Directory Lab</span></td>
+            <td>Ansible / Terraform / PS</td>
+            <td>Proxmox / ESXi / Cloud</td>
+            <td><span class="pill pill-green">Very High</span></td>
+            <td>Real-world enterprise AD exploitation and lateral defense</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="notes">
+        This matrix provides an instant decision tree for security leads, university professors, and wargame organizers looking to stand up their own internal or public exercises.
+      </div>
+    </div>
+
+    <!-- ====================================================================
+         STATION 11: TECHNICAL WALKTHROUGH (CTFD DEPLOYMENT)
+         ==================================================================== -->
+    <div id="docker-walkthrough" class="step" data-x="0" data-y="-1200" data-z="-3500" data-rotate-x="20" data-rotate-z="180" data-scale="1.2" data-title="Deploying CTFd">
+      <div class="cyber-badge green">HANDS-ON LAB DEPLOYMENT</div>
+      <div class="slide-header">
+        <h2 class="glow-green">Deploying CTFd in Under 3 Minutes</h2>
+        <p class="subtitle">Standing up an enterprise Jeopardy platform with Docker Compose.</p>
+      </div>
+
+      <div class="grid-2">
+        <div>
+          <div class="terminal-box">
+            <div class="terminal-bar">
+              <div class="terminal-dots">
+                <div class="terminal-dot dot-red"></div>
+                <div class="terminal-dot dot-yellow"></div>
+                <div class="terminal-dot dot-green"></div>
+              </div>
+              <span class="terminal-title">YAML // DOCKER-COMPOSE.YML</span>
+            </div>
+            <div class="terminal-body">
+<pre>
+<span class="comment"># Production 3-Tier CTFd Cluster</span>
+<span class="cmd">version:</span> <span class="param">'3.8'</span>
+<span class="cmd">services:</span>
+  <span class="cmd">ctfd:</span>
+    <span class="output">build: .</span>
+    <span class="output">ports:</span>
+      - <span class="param">"8000:8000"</span>
+    <span class="output">environment:</span>
+      - <span class="param">DATABASE_URL=mysql+pymysql://ctfd:ctfd@db/ctfd</span>
+      - <span class="param">REDIS_URL=redis://cache:6379</span>
+    <span class="output">depends_on: [db, cache]</span>
+
+  <span class="cmd">db:</span>
+    <span class="output">image: mariadb:10.11</span>
+    <span class="output">environment:</span>
+      - <span class="param">MYSQL_PASSWORD=ctfd</span>
+
+  <span class="cmd">cache:</span>
+    <span class="output">image: redis:7-alpine</span>
+</pre>
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <div class="terminal-box substep">
+            <div class="terminal-bar">
+              <div class="terminal-dots">
+                <div class="terminal-dot dot-red"></div>
+                <div class="terminal-dot dot-yellow"></div>
+                <div class="terminal-dot dot-green"></div>
+              </div>
+              <span class="terminal-title">BASH // SHELL COMMANDS</span>
+            </div>
+            <div class="terminal-body">
+<pre>
+<span class="comment"># 1. Clone the repository</span>
+<span class="cmd">$ git clone</span> https://github.com/CTFd/CTFd.git
+<span class="cmd">$ cd</span> CTFd
+
+<span class="comment"># 2. Launch production containers in background</span>
+<span class="cmd">$ docker compose up -d</span>
+<span class="output">[+] Running 3/3</span>
+<span class="output"> ✔ Network ctfd_default  Created</span>
+<span class="output"> ✔ Container ctfd-db-1   Started</span>
+<span class="output"> ✔ Container ctfd-ctfd-1 Started</span>
+
+<span class="comment"># 3. Verify health status</span>
+<span class="cmd">$ docker compose ps</span>
+<span class="output">NAME         STATUS         PORTS</span>
+<span class="output">ctfd-ctfd-1  Up 20 seconds  0.0.0.0:8000->8000/tcp</span>
+<span class="output">ctfd-db-1    Up 20 seconds  3306/tcp</span>
+<span class="output">ctfd-cache-1 Up 20 seconds  6379/tcp</span>
+</pre>
+            </div>
+          </div>
+
+          <div class="cyber-card substep" style="margin-top: 14px;">
+            <p style="font-size: 13px; color: var(--green);">
+              <strong>➔ Ready for Battle:</strong> Navigate to <code>http://localhost:8000</code> to run the setup wizard, configure team registration, and upload your initial challenge flags.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div class="notes">
+        Show how simple modern CTF operations have become. In 1996, you were taping cables and praying your kernel didn't panic. Today, a 3-tier containerized stack is up in 180 seconds.
+      </div>
+    </div>
+
+    <!-- ====================================================================
+         STATION 12: THE NEXT FRONTIER: AUTONOMOUS AI & eBPF
+         ==================================================================== -->
+    <div id="future-frontier" class="step" data-x="2800" data-y="-1200" data-z="1500" data-rotate-y="45" data-rotate-x="-25" data-scale="1.2" data-title="The Next Frontier">
+      <div class="cyber-badge purple">THE FUTURE OF WARGAMING</div>
+      <div class="slide-header">
+        <h2 class="glow-purple">The Next Frontier: Autonomous AI & eBPF</h2>
+        <p class="subtitle">DARPA AIxCC, autonomous agent teams, and kernel-space cyber defense.</p>
+      </div>
+
+      <div class="grid-2">
+        <div>
+          <div class="cyber-card purple-team substep">
+            <h3 class="glow-purple">DARPA AI Cyber Challenge (AIxCC)</h3>
+            <p>At DEF CON 32, DARPA and leading AI labs unveiled autonomous cyber reasoning systems. LLM-powered autonomous agents can now:</p>
+            <ul>
+              <li>Decompile, audit, and discover novel zero-day vulnerabilities in minutes</li>
+              <li>Synthesize non-breaking binary patches and verify SLA compliance</li>
+              <li>Compete against human offensive teams in real-time Attack-Defense</li>
+            </ul>
+          </div>
+
+          <div class="cyber-card blue-team substep" style="margin-top: 16px;">
+            <h3 class="glow-cyan">Kernel-Level Observability with eBPF</h3>
+            <p>Traditional user-space logging is blind to stealthy rootkits. Modern Blue Teams deploy <strong>extended Berkeley Packet Filters (eBPF)</strong>:</p>
+            <ul>
+              <li>Monitors system calls and socket lifecycles inside the Linux kernel</li>
+              <li>Intercepts malicious privilege escalations before execution completes</li>
+              <li>Real-time telemetry without modifying application source code</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="slide-img-frame" style="height: 480px;">
+          <img src="./assets/aiml-BlPfHnFc.jpg" alt="Autonomous AI Systems and Cyber Operations">
+          <div class="caption">NEURAL_RANGE // AUTONOMOUS RED/BLUE AGENT INFERENCE</div>
+        </div>
+      </div>
+
+      <div class="notes">
+        The future of CTFs is AI vs AI and Human+AI teaming. DARPA's AIxCC proved that autonomous agents can find bugs and write patches at machine speed.
+      </div>
+    </div>
+
+    <!-- ====================================================================
+         STATION 13: CONCLUSION / THE HACKER'S CREED
+         ==================================================================== -->
+    <div id="creed" class="step" data-x="0" data-y="800" data-z="2200" data-rotate-x="10" data-scale="1.5" data-title="Conclusion: The Creed">
+      <div class="cyber-badge green">WARGAMING PHILOSOPHY</div>
+      
+      <div style="text-align: center; max-width: 960px; margin: 0 auto;">
+        <h2 class="glow-cyan" style="font-size: 40px; margin-bottom: 20px;">
+          CONCLUSION: THE CRUCIBLE
+        </h2>
+
+        <div class="cyber-quote" style="font-size: 20px; line-height: 1.6; text-align: left; background: rgba(0, 240, 255, 0.08); border-left: 5px solid var(--cyan); padding: 24px 30px;">
+          "Capture The Flag events and Red/Blue exercises are far more than games—they are the modern digital proving ground. 
+          Hands-on combat remains the single fastest path to mastery in systems and security engineering."
+        </div>
+
+        <div class="grid-3 substep" style="margin-top: 36px; text-align: left;">
+          <div class="cyber-card">
+            <h4 class="glow-red">1. Compliance Fails</h4>
+            <p>Checklists build complacency. Only continuous adversarial testing reveals real organizational exposure.</p>
+          </div>
+          <div class="cyber-card">
+            <h4 class="glow-cyan">2. Break to Build</h4>
+            <p>Understanding how memory corruption, C2, and kernel hooks work makes you an incomparably better architect.</p>
+          </div>
+          <div class="cyber-card">
+            <h4 class="glow-purple">3. Open-Source Ranges</h4>
+            <p>From CTFd to GOAD and CALDERA, the tools to build world-class training ranges are freely available to all.</p>
+          </div>
+        </div>
+
+        <div style="margin-top: 36px;" class="substep">
+          <button class="hud-btn active-toggle" onclick="window.jumpToStation('overview')" style="padding: 10px 24px; font-size: 14px;">
+            ✦ EXPLORE 3D CYBERSPACE CONSTELLATION ✦
+          </button>
+        </div>
+      </div>
+
+      <div class="notes">
+        Summarize the core message: Combat is the fastest teacher. Whether you're attacking or defending, hands-on wargaming is what turns theorists into real engineers.
+      </div>
+    </div>
+
+    <!-- ====================================================================
+         STATION 14: 3D GRAND OVERVIEW
+         ==================================================================== -->
+    <div id="overview" class="step" data-x="500" data-y="400" data-z="6500" data-scale="8" data-title="3D Overview">
+      <h2>3D CYBERSPACE CONSTELLATION</h2>
+      <p>THE COMPLETE HISTORY & TAXONOMY OF CAPTURE THE FLAG</p>
+      <div style="margin-top: 30px; font-family: var(--font-mono); font-size: 14px; color: var(--cyan);">
+        [ CLICK ANY STATION OR USE ARROW KEYS TO NAVIGATE ]
+      </div>
+
+      <div class="notes">
+        The high-altitude view showing all 13 stations arrayed in 3D orbit around the central axis.
+      </div>
+    </div>
+
+  </div>
+
+  <!-- SCRIPTS -->
+  <script src="js/impress.js"></script>
+  <script src="js/audio-fx.js"></script>
+  <script src="js/cyber-canvas.js"></script>
+  <script src="js/presentation.js"></script>
+</body>
+</html>
