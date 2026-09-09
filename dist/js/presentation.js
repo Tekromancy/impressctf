@@ -38,7 +38,8 @@ const STATION_LIGHTNING = {
   'docker-walkthrough': 50,   // Station 11: +5
   'future-frontier': 55,      // Station 12: +5
   'creed': 60,                // Station 13: +5
-  'overview': 65,             // Station 14: +5
+  'cardinal-rule': 65,        // Station 14: +5 (The Cardinal Rule of Warfare)
+  'overview': 70,             // Station 15: +5
   'tekromancy-portal': 50     // Station 00: Return to gateway
 };
 

@@ -47,8 +47,9 @@ Open `http://localhost:8080` in your browser.
 
 ---
 
-## 🛰️ 3D Flight Path (14 Stations)
+## 🛰️ 3D Flight Path (15 Stations + Gateway)
 
+0. **Station 00: `#tekromancy-portal` (Gateway Portal)** — Cyberpunk launchpad with dynamic warp sequence into the presentation.
 1. **Station 01: `#title` (The Nexus)** — Epic 3D intro with cybernetic badge, hero image, and agenda.
 2. **Station 02: `#origins` (Military Roots)** — RAND Corporation Soviet wargaming, Richard Marcinko & the 1980s US Navy Red Cell.
 3. **Station 03: `#eligible-receiver` (Eligible Receiver 97)** — Pentagon's wake-up call; COTS tools and hacker scripts compromising command & control.
@@ -62,7 +63,8 @@ Open `http://localhost:8080` in your browser.
 11. **Station 11: `#docker-walkthrough` (Hands-On CTFd Deployment)** — Docker Compose architecture, multi-container cluster, and 3-minute launch walkthrough.
 12. **Station 12: `#future-frontier` (The Next Frontier)** — Autonomous AI agents (DARPA AIxCC), LLM patch synthesis, and Linux eBPF telemetry.
 13. **Station 13: `#creed` (The Hacker's Creed & Conclusion)** — "Combat is the single fastest path to mastery in systems and security engineering."
-14. **Station 14: `#overview` (3D Cyberspace Constellation)** — Camera zooms back 6,500px in Z-space to show all stations orbiting in 3D.
+14. **Station 14: `#cardinal-rule` (The #1 Cardinal Rule of Warfare)** — Comedic doctrine epilogue: Napoleon, Barbarossa, and why you never invade Russia in the winter.
+15. **Station 15: `#overview` (3D Cyberspace Constellation)** — Camera zooms back 7,500px in Z-space to show all stations orbiting in 3D.
 
 ---
 
